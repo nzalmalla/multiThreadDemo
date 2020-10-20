@@ -37,10 +37,12 @@ public class Main {
     public void printEvenNumber()
     {
         synchronized (this)
-        { int n=100 ;
-            System.out.print("Even Numbers: "+n);
-            for (int i = 1; i <= n; i++) {
-                if (i % 2 == 0) {
+        { int limit = 50;
+
+            System.out.println("Printing Even numbers between 1 and " + limit);
+
+            for(int i=1; i <= limit; i++){
+                if( i % 2 == 0){
                     System.out.print(i + " ");
                     try {
                         wait();
