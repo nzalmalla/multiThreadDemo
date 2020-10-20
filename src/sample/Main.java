@@ -39,7 +39,7 @@ public class Main {
         synchronized (this)
         { int limit = 50;
 
-            System.out.println("Printing Even numbers between 1 and " + limit);
+            System.out.println("Printing Even numbers between  " + limit);
 
             for(int i=1; i <= limit; i++){
                 if( i % 2 == 0){
