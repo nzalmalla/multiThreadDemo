@@ -1,90 +1,65 @@
 package sample;
-
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 public class Main {
-    int counter = 1;
-    static int N;
-
-    public void printFibbonaciNumber()
-    {
-        synchronized (this)
-        {
-            int n1=0,n2=1,n3,i,count=10;
-            System.out.print(n1+" "+n2);
-
-            for(i=2;i<count;++i){
-                n3=n1+n2;
-
-                System.out.print(" "+n3);
-                n1=n2;
-                n2=n3;
-                try {
-                    wait();
-                }
-                catch (
-                        InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            System.out.print(counter + " ");
-
-            counter++;
-
-            notify();
-        }
+    //task that takes time to complete
+    public static int t1() throws InterruptedException {
+        Thread.sleep(5000);
+        System.out.println("Task 1 Completed");
+        return 100;
     }
-
-
-    public void printEvenNumber()
-    {
-        synchronized (this)
-        { int limit = 50;
-
-            System.out.println("Printing Even numbers between  " + limit);
-
-            for(int i=1; i <= limit; i++){
-                if( i % 2 == 0){
-                    System.out.print(i + " ");
-                    try {
-                        wait();
-                    }
-                    catch (
-                            InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                System.out.print(
-                        counter + " ");
-                counter++;
-                notify();
-            }
-        }
+    //not dependent on doSomeHeavyTask()
+    //doesn't takes too much time
+    public static int t2() throws InterruptedException {
+        Thread.sleep(3000);
+        System.out.println("Task 2 Completed");
+        return 10;
     }
-
-    public static void main(String[] args) throws InterruptedException
-    {
-
-        N = 10;
-        Main mt = new Main();
-
-
-        Thread t1 = new Thread(new Runnable() {
-            public void run()
-            {
-                mt.printEvenNumber();
+    //dependent on t1
+    //not dependent on t2
+    public static void t3(int res) throws InterruptedException {
+        Thread.sleep(1000);
+        System.out.println("Task 3 completed. Output : " + res);
+    }
+    public static void main(String[] args) throws InterruptedException, ExecutionException {
+        //t1
+        //t2
+        Main.calculateTime();
+    }
+    public static void calculateTime() throws InterruptedException, ExecutionException {
+        long st = System.currentTimeMillis();
+//        ExecutorService executor = Executors.newSingleThreadExecutor();
+//        Future<Integer> future = executor.submit(() -> {
+//            try {
+//                return Main.t1();
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            return -1;
+//        });
+        CompletableFuture<Integer> completableFuture = CompletableFuture.supplyAsync(() -> {
+            try {
+                return t1();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return -1;
+        });
+        t2();
+        completableFuture.thenAcceptAsync(integer -> {
+            try {
+                t3(integer);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         });
-
-
-        Thread t2 = new Thread(new Runnable() {
-            public void run()
-            {
-                mt.printFibbonaciNumber();
-            }
-        });
-        t1.sleep(2000);
-        t1.start();
-        t2.sleep(3000);
-        t2.start();
-
+//        System.out.println("All tasks completed");
+//        t3(future.get());
+        System.out.println("All tasks completed.");
+        long et = System.currentTimeMillis();
+        System.out.println(et - st);
+        Thread.sleep(7000);
+    }
+    public static void runTasks() throws InterruptedException {
     }
 }
